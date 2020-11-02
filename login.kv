@@ -1,0 +1,135 @@
+<FlatButton@ButtonBehavior+Label>
+    font_size: 16
+
+
+<LoginJanela>:
+    id: main_win
+    orientation: "vertical"
+    spacing: 10
+    space_x: self.size[0]/3
+    
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+
+        canvas.before:
+            Color:
+                rgba: (.08, .45, .45,1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+        Label:
+            text: "Acesso ao chat"
+            bold: True
+            size_hint_x: .9
+
+        FlatButton:
+            text: "X"
+            size_hint_x: .1
+    
+
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: main_win.space_x, 10
+        spacing: 20
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            size_hint_y: None
+            height: 100
+
+            Label:
+                id: info
+                text: ''
+                markup: True
+                size_hint_y: None
+                height: 20
+
+            TextInput:
+                id: username_field
+                hint_text: "Nome de Usuário"
+                multiline: False
+                focus: True
+                on_text_validate: pwd_field.focus = True
+
+            TextInput:
+                id: pwd_field
+                hint_text: "Senha"
+                multiline: False
+                password: True
+                on_text_validate: root.validar_usuario()
+
+    
+    BoxLayout:   
+        orientation: "horizontal"
+        spacing: 10
+        size_hint_x: 0.7
+        pos_hint:{'center_x':0.5,'center_y':0.5}
+
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_y: None
+            spacing: 10
+            
+            BoxLayout:
+                pos_hint:{'left':1}
+                size_hint_y: None
+                size: 20,20
+                spacing:10
+                size_hint_x: 0.6
+                CheckBox:
+                    id: lembrar
+                    color: (0,1,0)
+                    text: "Lembrar usuário?" 
+                Label:
+                    color: 0,0,0
+                    height: 20
+                    text: "Lembrar usuário?"        
+
+            Button:
+                text: "Entrar!"
+                size_hint_y: None
+                height: 40
+                background_color: (.06,.45,.45,1)
+                background_normal: ''
+                on_release: root.validar_usuario()
+
+
+        BoxLayout: 
+            orientation: "vertical"
+            spacing: 10
+            size_hint_y: None
+            height: 100
+
+            Label:
+                text: "Não possui uma conta?"
+                color: 0,0,0
+                size_hint_y: None
+                height: 20
+                
+            Button:
+                text: "Cadastrar!"
+                size_hint_y: None
+                height: 40
+                background_color: (.06,.45,.45,1)
+                background_normal: ''
+                on_release: root.validar_usuario()
+    Label:
+        id: nda
+        
+        
+
+
+        
+            
