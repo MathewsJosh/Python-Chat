@@ -3,6 +3,7 @@
 
 
 <LoginJanela>:
+    name: 'LoginJanela'
     id: main_win
     orientation: "vertical"
     spacing: 10
@@ -22,7 +23,7 @@
 
         canvas.before:
             Color:
-                rgba: (.08, .45, .45,1)
+                rgba: (.08, .45, .45, 1)
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -30,7 +31,7 @@
         Label:
             text: "Acesso ao chat"
             bold: True
-            size_hint_x: .9
+            size_hint_x: 1
 
         FlatButton:
             text: "X"
@@ -91,7 +92,6 @@
                 CheckBox:
                     id: lembrar
                     color: (0,1,0)
-                    text: "Lembrar usuário?" 
                 Label:
                     color: 0,0,0
                     height: 20
@@ -124,12 +124,9 @@
                 height: 40
                 background_color: (.06,.45,.45,1)
                 background_normal: ''
-                on_release: root.validar_usuario()
+                on_release: app.root.trocar_para_cadastrar()
     Label:
         id: nda
-        
-        
-
 
         
             
