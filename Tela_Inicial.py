@@ -1,24 +1,24 @@
 from tkinter import *
-from bd import *
-from CadastrarTela import *
-from LogarTela import *
+from BD_usuariosCadastrados import *
+from Tela_Cadastrar import *
+from Tela_Logar import *
 
 # Tela de Login e/ou cadastro
 # largura,altura, +deslocamento margem esquerda, +deslocamento do topo
 tam = "400x200"
+camIco="Icones\chat.ico"
 
 
 # Tela que da a opção de Logar ou cadastrar antes de entrar no chat
 class telaInicialWindow():
     def __init__(self):
         self.tela_inicial = 0
-        self.x = 1
 
     def telaInicial(self):
         # Cria uma janela e define suas principais configurações
         self.tela_inicial = Tk()
         self.tela_inicial.title("Logue ou cadastre-se para usar o chat!")
-        self.tela_inicial.wm_iconbitmap('chat.ico')
+        self.tela_inicial.wm_iconbitmap(camIco)
         self.tela_inicial.focus_force()
         self.tela_inicial.geometry(tam)
 

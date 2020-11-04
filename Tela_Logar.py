@@ -1,8 +1,10 @@
 from tkinter import *
-from bd import *
-from CadastrarTela import *
+from BD_usuariosCadastrados import *
+#from Tela_Cadastrar import *
+from Tela_Chat import *
 
 tam = "400x200"
+camIco="Icones\chat.ico"
 
 class loginWindow():
   def __init__(self):
@@ -16,7 +18,7 @@ class loginWindow():
     # Cria uma janela e define suas principais configurações
     self.loginJanela = Tk()
     self.loginJanela.title("Entre para usar o chat!")
-    self.loginJanela.wm_iconbitmap('chat.ico')
+    self.loginJanela.wm_iconbitmap(camIco)
     self.loginJanela.focus_force()
     self.loginJanela.geometry(tam)
 
@@ -50,9 +52,9 @@ class loginWindow():
       self.aviso = Label(self.loginJanela, text="Usuario Logado! Você já pode usar o chat!", foreground='green')
       self.aviso.grid(row=2, column=1)
       # Muda o botão entrar para "Abrir chat"
-      self.botaoEntrar = Button(self.loginJanela, text="Abrir Chat!")
+      self.botaoEntrar = Button(self.loginJanela, text="Abrir Chat!", command=self.criaChat)
       self.botaoEntrar.grid(row=4, column=1)
-      print("teste")
+      
     else:
       # Avisa ao usuário que ele errou a senha ou nome
       self.aviso.destroy()
@@ -62,5 +64,7 @@ class loginWindow():
   # Destroi a Tela de Login e CRIA a tela de chat
   def criaChat(self):
       self.loginJanela.destroy()
+      x = chatWindow(self.userEntry)
+      x.chatTela()
 
 

@@ -1,9 +1,9 @@
 from tkinter import *
-from bd import *
+from BD_usuariosCadastrados import *
 #from LogarTela import *
 
 tam = "400x200"
-
+camIco="Icones\chat.ico"
 
 class cadastrarWindow():
     # Construtor da Classe
@@ -20,7 +20,7 @@ class cadastrarWindow():
         self.cadastrarJanela = Tk()
         self.cadastrarJanela.geometry(tam)
         self.cadastrarJanela.title("Cadastre-se")
-        self.cadastrarJanela.wm_iconbitmap('chat.ico')
+        self.cadastrarJanela.wm_iconbitmap(camIco)
         self.cadastrarJanela.focus_force()
 
         # Cria os campos necessários para o cadastro e os posiciona

@@ -1,11 +1,12 @@
 import sqlite3
 import os.path
 
+caminho = "Bancos de dados/usuariosCadastrados.db"
 # Verifica se o arquivo usuariosCadastrados existe
-existe = os.path.exists("usuariosCadastrados.db")
+existe = os.path.exists(caminho)
 
 # Cria o arquivo
-connection = sqlite3.connect('usuariosCadastrados.db')
+connection = sqlite3.connect(caminho)
 
 # navega pelo arquivo
 c = connection.cursor()
@@ -35,10 +36,12 @@ def entradaDados(nome, senha):
 sql = 'SELECT * FROM dados WHERE nome=? and senha=?'
 def leDados(nome,senha):
     for linha in c.execute(sql, (nome,senha,)):
-        print(linha)
         if linha == "":
             return False
         else:
             return True
 
+def fechaConexao():
+    c.close()
+    connection.close()
 
