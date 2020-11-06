@@ -1,71 +1,231 @@
-#from sqlite3.dbapi2 import Timestamp
+# Tkinter imports
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import tkinter.scrolledtext as scrolledtext
+from PyQt5.QtCore import QTimer
+
+
+#conda install -c anaconda pyqt
+#pip install PyQt5
+
+
+# Funçoes imports
 import random
-import sys
-#from termcolor import colored
-#conda install -c conda-forge colored
-from colored import fg, bg, attr
+from datetime import datetime, time
 
-#conda install -c omnia termcolor
-
+# Outros arquivos imports
 from BD_chatMessages import *
-from datetime import datetime
 
+# Variáveis globais
 tam = "600x400"
-camIco="Icones\chat.ico"
-clipPng="Icones\clippng.png"
+camIco = "Icones\chat.ico"
 
+
+# Classe da Janela de chat
 class chatWindow():
+    # Função construtora da classe
     def __init__(self, nome):
         self.chatJanela = 0
         self.textbox = 0
         self.msgbox = 0
         self.botaoenviar = 0
-        self.botaoanexar= 0
+        self.botaoatt = 0
         self.filename = ""
+        self.bFrame = 0
         self.data_e_hora_em_texto = 0
         self.nome = nome
         self.cor = "black"
+        self.clipPng = "Icones\clippng.png"
+        self.tamFrase = 0
 
+
+
+    #---------------------------MAIN------------------------------#
+
+    # Função MAIN da tela de chat => Gerencia tudo o que pode acontecer 
     def chatTela(self):
+        # Chamada de funções de formatação
+        self.formata_janela()
+
+        # Envia a entrada do usuário para o banco de dados
+        self.botaoenviar = Button(self.bFrame, text="Enviar mensagem", command=self.envia_msgs)
+        self.botaoenviar.grid(row=0, column=2, padx=10, pady=10)
+
+        self.botaoatt = Button(self.bFrame, text="Atualizar\nmensagens", command=self.atualiza_textbox)
+        self.botaoatt.grid(row=0, column=0, padx=10, pady=10)
+
+        #Indica que a tela atual sempre estará em loop (comando obrigatório do Tkinter para a tela funcionar)
+        self.chatJanela.mainloop()
+
+
+    
+    #---------------------------GERENCIAMENTO DO CHAT------------------------------#
+
+
+    # Método responsável por enviar a mensagem digitada diretamente para o BD
+    def envia_msgs(self):
+        msg = self.msgbox.get("1.0", "end")
+
+        # Se houver algo escrito, manda pro BD
+        if len(msg) > 1:
+            # Calcula o timestamp e apaga a caixa de texto onde o user escreveu
+            self.datamsg()
+            #self.apaga_msgbox()
+            self.apaga_chatbox()
+            
+            # Envia pro BD
+            criar_tabela()
+            inserir_msg(self.data_e_hora_em_texto, self.nome, msg)
+
+            self.atualiza_textbox()
+
+
+
+    # Função responsavel por atualizar o bate papo com as msgs do BD
+    def atualiza_textbox(self):
+        self.apaga_chatbox()
+        aux = seleciona_imprime(0)
+    
+        # Formata e insere linha por linha do banco de dados no textbox
+        for x in aux:
+            self.textbox.insert(INSERT, x[0])
+            self.textbox.insert(INSERT, " - ")
+            self.textbox.insert(INSERT, x[1])
+            self.textbox.insert(INSERT, ": ")
+            self.textbox.insert(INSERT, x[2])
+            
+
+        self.textbox.yview_moveto(1)
+        self.pesquisa_usuario()
+
+        # Função necessária para não permitir que o textbox seja editado
+        self.textbox.bind("<Key>", lambda e: "break")
+            
+
+    # Busca o nome do usuário no textbox, marca-o com uma tag e colore seu nome
+    def pesquisa_usuario(self):
+        # Remove a tag 'found' do index 1 até o final (END)
+        self.textbox.tag_remove('found', '1.0', END)
+        
+        # Se o usuário existir, vamos colorir seu nome
+        if self.nome:
+            # Index do começo da string no ScrooledText é sempre 1.0
+            idx = '1.0'
+            while 1:
+                #Encontra a string desejada a partir do index 1
+                idx = self.textbox.search(self.nome, idx, nocase=1, stopindex=END)
+
+                # Se não encontra a String, sai do loop
+                if not idx:
+                    break
+
+                # Ultima soma de posição da posição atual e do tamanho do texto
+                lastidx = '%s+%dc' % (idx, len(self.nome))
+                
+                # Marca a palavra encontrada com uma tag 'found'
+                self.textbox.tag_add('found', idx, lastidx)
+                idx = lastidx
+
+            # Marca a string encontrada com uma cor
+            self.textbox.tag_config('found', foreground=self.cor)
+
+
+    #---------------------------MÉTODOS AUXILIARES------------------------------#
+
+    # Escolhe radomicamente uma cor da lista para ser a cor daquele user
+    def random_colors(self, x):
+        cores = ["yellow","blue", "navy blue", "gold", "orange", "brown", "pink", "purple", "green", "red", "violet"]
+        if x==0:
+            self.cor = random.choice(cores)
+        else:
+            return random.choice(cores)
+
+    # Calcula o timestamp da msg e retorna já formatado
+    def datamsg(self):
+        data_e_hora_atuais = datetime.now()
+        self.data_e_hora_em_texto = data_e_hora_atuais.strftime(
+            "%d/%m/%Y %H:%M:%S")
+
+    # Apaga a caixa de bate-papo (onde as mensagens são exibidas)
+    def apaga_chatbox(self):
+        #self.textbox.destroy()
+        self.textbox.delete(1.0, END)
+    
+    # Apaga a caixa de mensagem
+    def apaga_msgbox(self):
+        self.msgbox.delete(1.0, END)
+
+
+
+    #---------------------------DESIGN & FORMATAÇÃO DA JANELA------------------------------#
+
+    # Função responsável por formatar a janela da aplicação
+    def formata_janela(self):
+        # Definiçoes iniciais
         self.chatJanela = Tk()
         self.chatJanela.title("Chattttô!")
         self.chatJanela.wm_iconbitmap(camIco)
         self.chatJanela.focus_force()
         self.chatJanela.geometry(tam)
 
-        #Define a cor do usuário
-        self.random_colors()
+        # Define a cor do usuário
+        self.random_colors(0)
 
-        #, state=DISABLED
+        # Tela onde aparecem as mensagens enviadas => atualiza a medida que são enviadas novas mensagens
         self.textbox = scrolledtext.ScrolledText(self.chatJanela, height=15, width=80)
         self.textbox.pack(padx=20, pady=20)
-        
-        self.textbox.insert(1.0,"Bem Vindo ao Chattttô!!!\n")
-        #self.textbox.config(state="disabled")
-        
+        self.textbox.insert(1.0, "Bem Vindo ao Chattttô @" + self.nome + "!!!\n")
 
-        self.botaoFrame = Frame(self.chatJanela)
-        self.botaoFrame.pack()
-        #,foreground=set.color
-        self.msgbox = Text(self.botaoFrame, height=3, width=40)
-        self.msgbox.grid(row=0, column=0, padx=20, pady=20)
+        # Esse frame é uma especie de "caixa" que posiciona elementos dentro dele com o .grid
+        self.bFrame = Frame(self.chatJanela)
+        self.bFrame.pack()
+
+        # Entrada de texto do usuário
+        self.msgbox = Text(self.bFrame, height=3, width=40)
+        self.msgbox.grid(row=0, column=1, padx=20, pady=20)
         self.msgbox.focus_force()
 
-        self.botaoanexar = Button(self.botaoFrame, text="Anexar\narquivo", command=self.abrir_imagem)
-        self.botaoanexar.grid(row=0, column=1, padx=10, pady=10)
-        clip2= PhotoImage(file=clipPng)
-        clip3= clip2.subsample(20,20)
-        self.botaoanexar.config(image=clip3,compound=RIGHT)
-        
-        self.botaoenviar = Button(self.botaoFrame, text="Enviar mensagem", command=self.envia_msgs)
-        self.botaoenviar.grid(row=0, column=2, padx=10, pady=10)
 
-        
-        self.chatJanela.mainloop()
+#c = chatWindow("Julho")
+#c.chatTela()
 
+#Bugs:
+"""
+Criar um novo banco de dados toda vez que o chat inicia?
+Apagar os dois bancos de dados se eles existirem?
+
+
+"""
+
+
+#Tasks:
+"""
+
+
+
+"""
+
+
+
+
+#Codigos descartados:
+"""
+#Calcula o tamanho da ultima frase inserida (sem a mensagem)
+self.tamFrase = (len(x[0]) + 3 + len(x[1]) + 2)
+
+# Botão anexar => anexa uma imagem à mensagem e a envia para o chat imediatamente
+self.botaoanexar = Button(self.botaoFrame, text="Anexar\narquivo", command=self.abrir_imagem)
+self.botaoanexar.grid(row=0, column=1, padx=10, pady=10)
+
+# Coloca um icone de clip no botão anexar
+clip2 = PhotoImage(file=self.clipPng)
+clip3 = clip2.subsample(20, 20)
+self.botaoanexar.config(image=clip3, compound=RIGHT)
+
+root["bg"] = "black"
+
+# A ideia era ter um botão de anexar arquivo e enviar as imagens para o chat
+# DEVE ENVIAR A IMAGEM PARA O TEXTBOX/BD IMEDIATAMENTE
     def abrir_imagem(self):
         try:
             self.filename = askopenfilename()
@@ -73,88 +233,54 @@ class chatWindow():
             print(self.filename)
         except:
             print("Erro ao abrir o arquivo!")
+#https://www.youtube.com/watch?v=VvM-uAp9zW8&ab_channel=soumilshah1995
+#https://www.youtube.com/watch?v=T4niJOZB4PI&ab_channel=Ssj6
 
-    def envia_msgs(self):
-        msg = self.msgbox.get("1.0","end")
 
-        #Se houver algo escrito, manda pro BD
-        if len(msg) != 1:
-            #Chamada de funções => sem retorno
-            self.datamsg()
-            self.apaga_msgbox()
-            criar_tabela()
-            inserir_msg(self.data_e_hora_em_texto, "Pedro", msg)
-            #self.textbox.insert(INSERT,msg)
-            self.textbox.focus_force()
-            aux = impressora()
-            
-            # Formata e insere linha por linha do banco de dados no textbox
-            for x in aux:
-                self.textbox.insert(INSERT, x[0])
-                self.textbox.insert(INSERT, " - ")
-                self.textbox.insert(INSERT, x[1])
-                self.textbox.insert(INSERT, " : ")
-                self.textbox.insert(INSERT, x[2])
-                #self.textbox.insert(INSERT, "\n")
+# A ideia era deixar cada usuário com uma cor diferente
+# Retorna todos os usuários do chat
+aux2 = seleciona_imprime(1)
+aux2.pop(aux2.index((self.nome,)))
+for x in aux2:
+    aux3 = str(x).strip('(,\')')
+    self.pesquisa_usuario(aux3)
 
-            print(self.cor)
-            self.textbox.yview_moveto(1)
-            self.find(self.textbox)
-            
-    #Busca o nome do usuário no textbox e o marca com a tag e colore seu nome
-    #https://www.geeksforgeeks.org/search-string-in-text-using-python-tkinter/
-    def find(self,msg): 
-        #remove tag 'found' from index 1 to END 
-        self.textbox.tag_remove('found', '1.0', END)  
+
+
+
+
+
+
+
+
+##########BANCO DE DADOS
+def inserir_img(times, nome, filename):
+    if existe == False:
+        criar_tabela()
+    else:
+        with open(filename, 'rb') as f:
+            data=f.read()
+        sql = "INSERT INTO messages (times, nome,  data) VALUES (? ? ?)",(times, nome, data)
+        c.execute(sql)
+    connection.commit()
+
+"Não tem mais data BLOB"
+def criar_tabela():
+    sql="CREATE TABLE IF NOT EXISTS messages (times text,nome text,message text,data BLOB)"
+    c.execute(sql)
         
-        #returns to widget currently in focus 
-        s = "Pedro" 
-        if s: 
-            idx = '1.0'
-            while 1: 
-                #searches for desried string from index 1 
-                idx = self.textbox.search(s, idx, nocase=1,  
-                                stopindex=END)  
-                if not idx: break
-                
-                #last index sum of current index and 
-                #length of text 
-                lastidx = '%s+%dc' % (idx, len(s))  
-                
-                #overwrite 'Found' at idx 
-                self.textbox.tag_add('found', idx, lastidx)  
-                idx = lastidx 
-            
-            #mark located string as red 
-            self.textbox.tag_config('found', foreground=self.cor)  
-        msg.focus_set() 
-        #self.textbox.config(command=find)         
 
-    def random_colors(self):
-        COLORS = ['snow', 'ghost white', 'white smoke', 'gainsboro', 'floral white', 'antique white', 'papaya whip', 'bisque', 'peach puff', 'navajo white', 'lemon chiffon', 
-        'mint cream', 'azure', 'alice blue', 'lavender','lavender blush', 'misty rose', 'midnight blue', 'navy', 'cornflower blue', 'dark slate blue', 'slate blue', 'medium slate blue', 
-        'light slate blue', 'medium blue', 'royal blue',  'blue','dodger blue', 'deep sky blue', 'sky blue', 'light sky blue', 'steel blue', 'light steel blue','light blue', 'powder blue', 'pale turquoise']
-        self.cor=random.choice(COLORS)
-
-    # Calcula o timestamp da msg e retorna já formatado
-    def datamsg(self):
-        data_e_hora_atuais = datetime.now()
-        self.data_e_hora_em_texto = data_e_hora_atuais.strftime("%d/%m/%Y %H:%M:%S")
-    
-    def apaga_chatbox(self):
-        self.textbox.destroy()
-    # Apaga a caixa de mensagem
-    def apaga_msgbox(self):
-        self.msgbox.delete(1.0, END)
-
-
-#c = chatWindow("pedro")
-#c.chatTela()
+"""
 
 
 
+# Referências
+"""
+https://www.geeksforgeeks.org/search-string-in-text-using-python-tkinter/
+http://pythonclub.com.br/gerenciando-banco-dados-sqlite3-python-parte1.html#lendo-as-informacoes-do-banco-de-dados
+https://pynative.com/python-sqlite-blob-insert-and-retrieve-digital-data/
+https://stackoverflow.com/questions/3842155/is-there-a-way-to-make-the-tkinter-text-widget-read-only
 
-#"Passar o usuario como parametro de s para mudar de cor"
-#"Cores Foreground aleatorias entre usuarios"
-#"Toda vez que o programa inicia, deletar o chat antes de cria-lo"
-#"bem vindo @pedro!"
+
+
+"""

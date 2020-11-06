@@ -1,42 +1,21 @@
 import sqlite3
 import os.path
 
+# Variavel Global
 caminho = "Bancos de dados/chatMessages.db"
 
-# Verifica se o arquivo usuariosCadastrados existe
-existe = os.path.exists(caminho)
-
-# Cria o arquivo
+# Cria o arquivo e conecta o cursor para navegar pelo arquivo
 connection = sqlite3.connect(caminho)
-
-# navega pelo arquivo
 c = connection.cursor()
 
 def criar_tabela():
-    c.execute(
-        """CREATE TABLE IF NOT EXISTS messages (
-            times text,
-            nome text,
-            message text,
-            data BLOB
-            )""")
+    sql = """CREATE TABLE IF NOT EXISTS messages (times text, nome text, message text)"""
+    c.execute(sql)
 
-
-def inserir_img(times, nome, filename):
-    if existe == False:
-        criar_tabela()
-    else:
-        with open(filename, 'rb') as f:
-            data=f.read()
-        c.execute("""INSERT INTO messages (
-            times, 
-            nome,  
-            data) 
-            VALUES (? ? ?)""",(times, nome, data))
-    connection.commit()
 
 def inserir_msg(times, nome, msg):
-    if existe == False:
+    # Verifica se o arquivo usuariosCadastrados existe
+    if not(os.path.exists(caminho)):
         print("Não existia")
         criar_tabela()
     else:
@@ -44,24 +23,26 @@ def inserir_msg(times, nome, msg):
         c.execute("INSERT INTO messages (times,nome,message) VALUES ('"+times+"','"+nome+"','"+msg+"')")
     connection.commit()
 
-#VALUES (? ? ?)""",(times, nome, message))
 
-def exibir_tabela():
-    m = c.execute("""SELECT * FROM messages""")
-    #for x in range(len(m)):
-    for x in m:
-        print(x)
-
-def impressora():
-    #print("impressora")
-    sql = "SELECT times,nome,message FROM messages"
-    r = c.execute(sql)
-    s = r.fetchall()
-    
-    #for x in s:
-     #   print(x)
-    return s
-
+# Retorna os campos selecionados => Retorna uma lista de tuplas
+def seleciona_imprime(campos):
+    # Retorna todos os campos do BD
+    if campos==0:
+        sql = "SELECT times,nome,message FROM messages"
+        r = c.execute(sql)
+        s = r.fetchall()
+        return s
+    # Retorna apenas os nomes de usuário sem repetir
+    elif campos==1:
+        sql = "SELECT DISTINCT nome FROM messages"
+        r = c.execute(sql)
+        s = r.fetchall()
+        return s
+    else:
+        sql = "SELECT * FROM messages"
+        r = c.execute(sql)
+        s = r.fetchall()
+        return s
 
 
 def fechaConexao():

@@ -1,6 +1,6 @@
 from tkinter import *
 from BD_usuariosCadastrados import *
-#from Tela_Cadastrar import *
+from Tela_Cadastrar import *
 from Tela_Chat import *
 
 tam = "400x200"
@@ -13,6 +13,7 @@ class loginWindow():
     self.passEntry = 0
     self.aviso = 0
     self.botaoEntrar = 0
+    self.nome = ""
 
   def entrarTela(self):
     # Cria uma janela e define suas principais configurações
@@ -47,6 +48,7 @@ class loginWindow():
       self.aviso = Label(self.loginJanela, text="Digite um nome de usuário e/ou senha!", foreground='red')
       self.aviso.grid(row=2, column=1)
     elif leDados(self.userEntry.get(), self.passEntry.get()):
+      self.nome = self.userEntry.get()
       # Avisa sobre o sucesso no login
       self.aviso.destroy()
       self.aviso = Label(self.loginJanela, text="Usuario Logado! Você já pode usar o chat!", foreground='green')
@@ -64,7 +66,8 @@ class loginWindow():
   # Destroi a Tela de Login e CRIA a tela de chat
   def criaChat(self):
       self.loginJanela.destroy()
-      x = chatWindow(self.userEntry)
-      x.chatTela()
+      print(self.nome)
+      auxiliar = chatWindow(self.nome)
+      auxiliar.chatTela()
 
 

@@ -22,7 +22,7 @@ def criar_tabela():
 
 
 def entradaDados(nome, senha):
-    if existe == False:
+    if not(os.path.exists(caminho)):
         criar_tabela()
         c.execute(
             "INSERT OR IGNORE INTO dados (nome, senha) VALUES ('admin', 'admin')")
@@ -33,8 +33,8 @@ def entradaDados(nome, senha):
     connection.commit()
 
 
-sql = 'SELECT * FROM dados WHERE nome=? and senha=?'
 def leDados(nome,senha):
+    sql = 'SELECT * FROM dados WHERE nome=? and senha=?'
     for linha in c.execute(sql, (nome,senha,)):
         if linha == "":
             return False

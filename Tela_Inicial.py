@@ -1,7 +1,8 @@
 from tkinter import *
-from BD_usuariosCadastrados import *
+#from BD_usuariosCadastrados import *
 from Tela_Cadastrar import *
 from Tela_Logar import *
+import os.path
 
 # Tela de Login e/ou cadastro
 # largura,altura, +deslocamento margem esquerda, +deslocamento do topo
@@ -33,7 +34,6 @@ class telaInicialWindow():
         botaoCadastrar.place(relx=0.7, rely=0.5, anchor=CENTER)
 
         self.tela_inicial.mainloop()
-
 
 x1 = telaInicialWindow()
 x1.telaInicial()
