@@ -1,5 +1,5 @@
 # Python-Chat
-Projeto desenvolvido como trabalho para a disciplina de Linguagens formais e autômatos da UFJF. Carinhosamente apelidado como ChatttÔ.
+Projeto desenvolvido como trabalho para a disciplina de Linguagens formais e autômatos da UFJF. Carinhosamente apelidado como Chatttô.
 Fique a vontade para testar e registrar sugestões ou bugs
 
 OBS: Executar a Tela_Principal.py para testar a aplicação
