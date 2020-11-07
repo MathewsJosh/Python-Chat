@@ -2,18 +2,13 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import tkinter.scrolledtext as scrolledtext
-from PyQt5.QtCore import QTimer
-
-
-#conda install -c anaconda pyqt
-#pip install PyQt5
-
+import tkinter.font as tkFont
 
 # Funçoes imports
 import random
-from datetime import datetime, time
+from datetime import datetime
 
-# Outros arquivos imports
+# Imports do banco de Dados
 from BD_chatMessages import *
 
 # Variáveis globais
@@ -37,7 +32,8 @@ class chatWindow():
         self.cor = "black"
         self.clipPng = "Icones\clippng.png"
         self.tamFrase = 0
-
+        self.camAtualizarButton = 0
+        self.camEnviarButton = 0
 
 
     #---------------------------MAIN------------------------------#
@@ -48,13 +44,13 @@ class chatWindow():
         self.formata_janela()
 
         # Envia a entrada do usuário para o banco de dados
-        self.botaoenviar = Button(self.bFrame, text="Enviar mensagem", command=self.envia_msgs)
+        self.botaoenviar = Button(self.bFrame, text="Enviar mensagem", command=self.envia_msgs, image=self.camEnviarButton, bd=0, relief=GROOVE)
         self.botaoenviar.grid(row=0, column=2, padx=10, pady=10)
 
-        self.botaoatt = Button(self.bFrame, text="Atualizar\nmensagens", command=self.atualiza_textbox)
+        self.botaoatt = Button(self.bFrame, text="Atualizar\nmensagens", command=self.atualiza_textbox, image=self.camAtualizarButton, bd=0, relief=GROOVE)
         self.botaoatt.grid(row=0, column=0, padx=10, pady=10)
 
-        #Indica que a tela atual sempre estará em loop (comando obrigatório do Tkinter para a tela funcionar)
+        # Indica que a tela atual sempre estará em loop (comando obrigatório do Tkinter para a tela funcionar)
         self.chatJanela.mainloop()
 
 
@@ -65,6 +61,7 @@ class chatWindow():
     # Método responsável por enviar a mensagem digitada diretamente para o BD
     def envia_msgs(self):
         msg = self.msgbox.get("1.0", "end")
+        
 
         # Se houver algo escrito, manda pro BD
         if len(msg) > 1:
@@ -78,6 +75,7 @@ class chatWindow():
             inserir_msg(self.data_e_hora_em_texto, self.nome, msg)
 
             self.atualiza_textbox()
+            
 
 
 
@@ -97,6 +95,8 @@ class chatWindow():
 
         self.textbox.yview_moveto(1)
         self.pesquisa_usuario()
+
+        self.apaga_msgbox()
 
         # Função necessária para não permitir que o textbox seja editado
         self.textbox.bind("<Key>", lambda e: "break")
@@ -166,13 +166,24 @@ class chatWindow():
         self.chatJanela.title("Chattttô!")
         self.chatJanela.wm_iconbitmap(camIco)
         self.chatJanela.focus_force()
-        self.chatJanela.geometry(tam)
+        
+        #Codigo para centralizar a Janela na tela
+        self.chatJanela.withdraw()
+        self.chatJanela.update_idletasks()  # Update "requested size" from geometry manager
+        x = (self.chatJanela.winfo_screenwidth() - self.chatJanela.winfo_reqwidth()) / 3
+        y = (self.chatJanela.winfo_screenheight() - self.chatJanela.winfo_reqheight()) / 3
+        self.chatJanela.geometry("+%d+%d" % (x, y))
+        self.chatJanela.deiconify()
 
         # Define a cor do usuário
         self.random_colors(0)
 
+        fontfamilylist = list(tkFont.families())
+        fontindex = 0
+        fontStyle = tkFont.Font(family=fontfamilylist[fontindex])
+
         # Tela onde aparecem as mensagens enviadas => atualiza a medida que são enviadas novas mensagens
-        self.textbox = scrolledtext.ScrolledText(self.chatJanela, height=15, width=80)
+        self.textbox = scrolledtext.ScrolledText(self.chatJanela, height=15, width=80, font=fontStyle)
         self.textbox.pack(padx=20, pady=20)
         self.textbox.insert(1.0, "Bem Vindo ao Chattttô @" + self.nome + "!!!\n")
 
@@ -181,30 +192,19 @@ class chatWindow():
         self.bFrame.pack()
 
         # Entrada de texto do usuário
-        self.msgbox = Text(self.bFrame, height=3, width=40)
+        self.msgbox = Text(self.bFrame, height=3, width=40, font=fontStyle)
         self.msgbox.grid(row=0, column=1, padx=20, pady=20)
         self.msgbox.focus_force()
 
+        #Converte os pngs dos botões para imagem
+        self.camAtualizarButton = PhotoImage(file="Icones\Botoes\Atualizar.png", master=self.chatJanela)
+        self.camEnviarButton = PhotoImage(file="Icones\Botoes\Enviar.png", master=self.chatJanela)
 
+
+
+# Testes apenas para essa tela
 #c = chatWindow("Julho")
 #c.chatTela()
-
-#Bugs:
-"""
-Criar um novo banco de dados toda vez que o chat inicia?
-Apagar os dois bancos de dados se eles existirem?
-
-
-"""
-
-
-#Tasks:
-"""
-
-
-
-"""
-
 
 
 
@@ -247,13 +247,8 @@ for x in aux2:
 
 
 
+###############################################BANCO DE DADOS
 
-
-
-
-
-
-##########BANCO DE DADOS
 def inserir_img(times, nome, filename):
     if existe == False:
         criar_tabela()
@@ -267,8 +262,7 @@ def inserir_img(times, nome, filename):
 "Não tem mais data BLOB"
 def criar_tabela():
     sql="CREATE TABLE IF NOT EXISTS messages (times text,nome text,message text,data BLOB)"
-    c.execute(sql)
-        
+    c.execute(sql)   
 
 """
 
@@ -280,7 +274,6 @@ https://www.geeksforgeeks.org/search-string-in-text-using-python-tkinter/
 http://pythonclub.com.br/gerenciando-banco-dados-sqlite3-python-parte1.html#lendo-as-informacoes-do-banco-de-dados
 https://pynative.com/python-sqlite-blob-insert-and-retrieve-digital-data/
 https://stackoverflow.com/questions/3842155/is-there-a-way-to-make-the-tkinter-text-widget-read-only
-
-
+http://buttonoptimizer.com/
 
 """
